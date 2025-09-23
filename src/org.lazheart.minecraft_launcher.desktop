@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Minecraft Bedrock Launcher
+Comment=Lanzador de Minecraft Bedrock con CC-MC
+Exec=minecraft_egui
+Icon=org.lazheart.minecraft_launcher
+Terminal=false
+Type=Application
+Categories=Game;
+StartupNotify=true

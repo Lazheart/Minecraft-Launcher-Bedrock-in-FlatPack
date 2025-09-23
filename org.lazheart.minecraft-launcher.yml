@@ -1,0 +1,180 @@
+id: org.lazheart.minecraft-launcher
+runtime: org.kde.Platform
+runtime-version: "5.15-22.08"
+sdk: org.kde.Sdk
+command: wrapper.sh
+base: io.qt.qtwebengine.BaseApp
+base-version: "5.15-22.08"
+sdk-extensions:
+  - org.kde.Sdk.qt5
+  - org.kde.Sdk.qt5webengine
+finish-args:
+  - --share=network
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  - --socket=pulseaudio
+  - --device=all
+  - --filesystem=home
+  - --talk-name=org.freedesktop.Notifications
+
+build-options:
+  cflags: -O2
+  cxxflags: -O2
+  env:
+    LDFLAGS: "-L/app/lib"
+    CPPFLAGS: "-I/app/include"
+    CMAKE_PREFIX_PATH: "/app:/usr/lib/sdk/qt5/lib/cmake"
+
+modules:
+  # 🔧 Librerías base requeridas
+  - name: libzip
+    buildsystem: cmake
+    builddir: true
+    make-args: [ -j4 ]
+    sources:
+      - type: archive
+        url: https://github.com/nih-at/libzip/archive/refs/tags/v1.10.1.tar.gz
+        sha256: d56d857d1c3ad4a7f3a4c01a51c6a6e5530e35ab93503f62276e8ba2b306186a
+
+  - name: openssl
+    buildsystem: simple
+    build-commands:
+      - ./config --prefix=/app --openssldir=/app/ssl
+      - make -j4
+      - make install_sw
+    sources:
+      - type: archive
+        url: https://www.openssl.org/source/openssl-3.3.2.tar.gz
+        sha256: 2e8a40b01979afe8be0bbfb3de5dc1c6709fedb46d6c89c10da114ab5fc3d281
+
+  - name: curl
+    buildsystem: autotools
+    config-opts:
+      - --with-openssl=/app
+    sources:
+      - type: archive
+        url: https://curl.se/download/curl-8.10.1.tar.gz
+        sha256: d15ebab765d793e2e96db090f0e172d127859d78ca6f6391d7eafecfd894bbc0
+
+  # 🔀 Abseil debe ir ANTES de protobuf
+  - name: abseil-cpp
+    buildsystem: cmake
+    builddir: true
+    config-opts:
+      - -DCMAKE_CXX_STANDARD=17
+      - -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+      - -DCMAKE_BUILD_TYPE=Release
+    sources:
+      - type: archive
+        url: https://github.com/abseil/abseil-cpp/archive/refs/tags/20240722.0.tar.gz
+        sha256: f50e5ac311a81382da7fa75b97310e4b9006474f9560ac46f54a9967f07d4ae3
+
+  - name: protobuf
+    buildsystem: cmake
+    builddir: true
+    config-opts:
+      - -Dprotobuf_BUILD_TESTS=OFF
+      - -Dprotobuf_ABSL_PROVIDER=package
+      - -Dprotobuf_UTF8_RANGE_PROVIDER=module
+      - -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+      - -DCMAKE_PREFIX_PATH=/app/lib/cmake   # 🔧 añadido para que encuentre absl
+      - -Wno-dev
+      - -DBUILD_DEPS=ON
+    make-args:
+      - -j4
+    sources:
+      - type: archive
+        url: https://github.com/protocolbuffers/protobuf/archive/refs/tags/v28.2.tar.gz
+        sha256: b2340aa47faf7ef10a0328190319d3f3bee1b24f426d4ce8f4253b6f27ce16db
+
+  # 🎮 Dependencias de sistema usadas por el cliente de Minecraft
+  - name: libevdev
+    buildsystem: meson
+    builddir: true
+    config-opts:
+      - -Dtests=disabled
+    sources:
+      - type: archive
+        url: https://www.freedesktop.org/software/libevdev/libevdev-1.13.1.tar.xz
+        sha256: 06a77bf2ac5c993305882bc1641017f5bec1592d6d1b64787bad492ab34f2f36
+
+  - name: alsa-lib
+    buildsystem: autotools
+    sources:
+      - type: archive
+        url: https://www.alsa-project.org/files/pub/lib/alsa-lib-1.2.11.tar.bz2
+        sha256: 9f3f2f69b995f9ad37359072fbc69a3a88bfba081fc83e9be30e14662795bb4d
+
+  - name: libxtst
+    buildsystem: autotools
+    sources:
+      - type: archive
+        url: https://www.x.org/releases/individual/lib/libXtst-1.2.5.tar.gz
+        sha256: 244ba6e1c5ffa44f1ba251affdfa984d55d99c94bb925a342657e5e7aaf6d39c
+
+
+  - name: nlohmann-json
+    buildsystem: simple
+    build-commands:
+      - install -Dm644 json.hpp /app/include/json.hpp
+      - mkdir -p /app/nlohmann
+      - unzip include.zip -d /app/nlohmann
+    sources:
+      - type: file
+        url: https://github.com/nlohmann/json/releases/download/v3.7.3/json.hpp
+        sha256: 3b5d2b8f8282b80557091514d8ab97e27f9574336c804ee666fda673a9b59926
+      - type: file
+        url: https://github.com/nlohmann/json/releases/download/v3.7.3/include.zip
+        sha256: 87b5884741427220d3a33df1363ae0e8b898099fbc59f1c451113f6732891014
+
+
+
+  # 🚀 Proyectos del launcher
+  - name: mcpelauncher-extract
+    buildsystem: cmake-ninja
+    builddir: true
+    config-opts:
+      - -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+    build-commands:
+      - git submodule update --init --recursive
+    sources:
+      - type: git
+        url: https://github.com/minecraft-linux/mcpelauncher-extract.git
+        branch: ng
+
+  - name: mcpelauncher-client
+    buildsystem: cmake
+    builddir: true
+    make-args: [ -j4 ]
+    sources:
+      - type: git
+        url: https://github.com/minecraft-linux/mcpelauncher-manifest.git
+        branch: ng
+      - type: patch
+        path: patches/disable-json-fetch.patch
+    build-commands:
+      - git submodule update --init --recursive
+      - echo "# disabled in flatpak, using system json.hpp" > ext/json.cmake
+      - cmake -B build -S . \
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+          -DENABLE_DEV_PATHS=OFF \
+          -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+          -DCMAKE_PREFIX_PATH=/app \
+          -DCMAKE_INCLUDE_PATH=/app/include \
+          -DCMAKE_LIBRARY_PATH=/app/lib
+      - make -C build -j4
+      - make -C build install
+
+  - name: minecraft_egui
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 bin/minecraft_egui /app/bin/minecraft_egui
+      - install -Dm755 src/wrapper.sh /app/bin/wrapper.sh
+      - install -Dm644 src/org.lazheart.minecraft_launcher.desktop /app/share/applications/org.lazheart.minecraft_launcher.desktop
+      - install -Dm644 src/org.lazheart.minecraft-launcher.appdata.xml /app/share/metainfo/org.lazheart.minecraft-launcher.appdata.xml
+      - install -Dm644 assets/logo.png /app/share/icons/hicolor/256x256/apps/org.lazheart.minecraft_launcher.png
+      - install -Dm644 assets/logo.svg /app/share/icons/hicolor/scalable/apps/org.lazheart.minecraft_launcher.svg
+    sources:
+      - type: dir
+        path: .
