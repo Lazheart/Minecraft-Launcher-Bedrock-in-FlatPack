@@ -5,9 +5,9 @@ sdk: org.kde.Sdk
 command: wrapper.sh
 base: io.qt.qtwebengine.BaseApp
 base-version: "5.15-22.08"
-sdk-extensions:
-  - org.kde.Sdk.qt5
-  - org.kde.Sdk.qt5webengine
+# sdk-extensions:
+#   # - org.kde.Sdk.qt5
+#   # - org.kde.Sdk.qt5webengine
 finish-args:
   - --share=network
   - --share=ipc
