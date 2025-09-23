@@ -1,0 +1,12 @@
+Creditos por la GUI :
+
+https://codeberg.org/bry254/Launcher-CC-MC-egui
+
+
+Se hicieron ligeras modificaciones para que funcione en flatpak
+
+puedes encontrarlas en main.rs
+
+
+las instruciones para compilar la U.I son las mismas
+
