@@ -148,11 +148,21 @@ modules:
     builddir: true
     make-args: [ -j4 ]
     sources:
+    # Tarball de curl (descargado fuera del sandbox por Flatpak)
+      - type: archive
+        url: https://curl.se/download/curl-8.0.1.tar.gz
+        sha256: 5fd29000a4089934f121eff456101f0a5d09e2a3e89da1d714adf06c4be887cb
+        dest: third_party
+      
       - type: git
         url: https://github.com/minecraft-linux/mcpelauncher-manifest.git
         branch: ng
+      
       - type: patch
         path: patches/disable-json-fetch.patch
+      
+      - type: patch
+        path: patches/disable-curl-download.patch
     build-commands:
       - git submodule update --init --recursive
       - echo "# disabled in flatpak, using system json.hpp" > ext/json.cmake
