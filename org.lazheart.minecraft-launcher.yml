@@ -170,6 +170,8 @@ modules:
           -DUSE_SYSTEM_CURL=ON
           -DCURL_INCLUDE_DIR=/app/include
           -DCURL_LIBRARY=/app/lib/libcurl.so
+          -DCMAKE_C_COMPILER=clang \
+          -DCMAKE_CXX_COMPILER=clang++
       - make -C build -j4
       - make -C build install
 
