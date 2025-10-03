@@ -51,7 +51,7 @@ modules:
   - name: curl
     buildsystem: autotools
     config-opts:
-      - --with-openssl=/app
+      - --with-openssl=/app 
     sources:
       - type: archive
         url: https://curl.se/download/curl-8.10.1.tar.gz
@@ -147,13 +147,7 @@ modules:
     buildsystem: cmake
     builddir: true
     make-args: [ -j4 ]
-    sources:
-    # Tarball de curl (descargado fuera del sandbox por Flatpak)
-      - type: archive
-        url: https://curl.se/download/curl-8.0.1.tar.gz
-        sha256: 5fd29000a4089934f121eff456101f0a5d09e2a3e89da1d714adf06c4be887cb
-        dest: third_party
-      
+    sources:      
       - type: git
         url: https://github.com/minecraft-linux/mcpelauncher-manifest.git
         branch: ng
@@ -173,6 +167,9 @@ modules:
           -DCMAKE_PREFIX_PATH=/app \
           -DCMAKE_INCLUDE_PATH=/app/include \
           -DCMAKE_LIBRARY_PATH=/app/lib
+          -DUSE_SYSTEM_CURL=ON
+          -DCURL_INCLUDE_DIR=/app/include
+          -DCURL_LIBRARY=/app/lib/libcurl.so
       - make -C build -j4
       - make -C build install
 

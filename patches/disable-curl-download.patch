@@ -2,14 +2,11 @@ diff --git a/ext/curl.cmake b/ext/curl.cmake
 index 1111111..2222222 100644
 --- a/ext/curl.cmake
 +++ b/ext/curl.cmake
-@@ -19,5 +19,5 @@
-- if(OWN_CURL_SOURCE_DIR)
--     set(CURL_EXT_PROPERTIES SOURCE_DIR ${OWN_CURL_SOURCE_DIR})
-- else()
+@@ -19,5 +19,2 @@
+-if(OWN_CURL_SOURCE_DIR)
+-    set(CURL_EXT_PROPERTIES SOURCE_DIR ${OWN_CURL_SOURCE_DIR})
+-else()
 -    set(CURL_EXT_PROPERTIES URL "http://curl.haxx.se/download/curl-8.0.1.tar.gz")
 -endif()
-+    # Usar el tarball local provisto por Flatpak en lugar de intentar descargar de Internet
-+    set(CURL_EXT_PROPERTIES
-+        URL "${CMAKE_SOURCE_DIR}/third_party/curl-8.0.1.tar.gz"
-+    )
-+endif()
++set(USE_SYSTEM_CURL ON CACHE BOOL "Use system-installed curl")
++find_package(CURL REQUIRED)
