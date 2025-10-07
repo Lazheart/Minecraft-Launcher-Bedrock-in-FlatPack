@@ -130,7 +130,9 @@ modules:
 
 
 
-  # 🚀 Proyectos del launcher
+  # 🚀 Modulos del launcher
+  
+  # Extractor del APK 
   - name: mcpelauncher-extract
     buildsystem: cmake-ninja
     builddir: true
@@ -143,6 +145,7 @@ modules:
         url: https://github.com/minecraft-linux/mcpelauncher-extract.git
         branch: ng
 
+  # Cliente de Minecraft
   - name: mcpelauncher-client
     buildsystem: cmake
     builddir: true
@@ -154,12 +157,13 @@ modules:
       
       - type: patch
         path: patches/disable-json-fetch.patch
-      
       - type: patch
-        path: patches/disable-curl-download.patch
+        path: patches/disable-curl-download.patch      
+
     build-commands:
       - git submodule update --init --recursive
       - echo "# disabled in flatpak, using system json.hpp" > ext/json.cmake
+      
       - cmake -B build -S . \
           -DCMAKE_BUILD_TYPE=RelWithDebInfo \
           -DENABLE_DEV_PATHS=OFF \
@@ -172,9 +176,24 @@ modules:
           -DCURL_LIBRARY=/app/lib/libcurl.so
           -DCMAKE_C_COMPILER=clang \
           -DCMAKE_CXX_COMPILER=clang++
+
+      - cmake -B build-clang -S . \
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+          -DENABLE_DEV_PATHS=OFF \
+          -DCMAKE_PREFIX_PATH=/app \
+          -DCMAKE_INCLUDE_PATH=/app/include \
+          -DCMAKE_LIBRARY_PATH=/app/lib \
+          -DUSE_SYSTEM_CURL=ON \
+          -DCMAKE_C_COMPILER=clang \
+          -DCMAKE_CXX_COMPILER=clang++
+      - make -C build-clang -j4 target_clang_component
+      
+
       - make -C build -j4
       - make -C build install
+      - make -C build-clang install
 
+  # Launcher con interfaz gráfica (egui)
   - name: minecraft_egui
     buildsystem: simple
     build-commands:
