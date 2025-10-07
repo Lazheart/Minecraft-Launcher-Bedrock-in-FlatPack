@@ -2,12 +2,12 @@ id: org.lazheart.minecraft-launcher
 runtime: org.kde.Platform
 runtime-version: "5.15-22.08"
 sdk: org.kde.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.llvm15
 command: wrapper.sh
 base: io.qt.qtwebengine.BaseApp
 base-version: "5.15-22.08"
-# sdk-extensions:
-#   # - org.kde.Sdk.qt5
-#   # - org.kde.Sdk.qt5webengine
+
 finish-args:
   - --share=network
   - --share=ipc
@@ -24,7 +24,8 @@ build-options:
   env:
     LDFLAGS: "-L/app/lib"
     CPPFLAGS: "-I/app/include"
-    CMAKE_PREFIX_PATH: "/app:/usr/lib/sdk/qt5/lib/cmake"
+    CMAKE_PREFIX_PATH: "/app:/usr/lib/sdk/qt5/lib/cmake:/usr/lib/sdk/qt5/lib/cmake/Qt5"
+    PKG_CONFIG_PATH: "/app/lib/pkgconfig:/usr/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig"
 
 modules:
   # 🔧 Librerías base requeridas
@@ -78,7 +79,7 @@ modules:
       - -Dprotobuf_ABSL_PROVIDER=package
       - -Dprotobuf_UTF8_RANGE_PROVIDER=module
       - -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-      - -DCMAKE_PREFIX_PATH=/app/lib/cmake   # 🔧 añadido para que encuentre absl
+      - -DCMAKE_PREFIX_PATH=/app/lib/cmake
       - -Wno-dev
       - -DBUILD_DEPS=ON
     make-args:
@@ -113,7 +114,6 @@ modules:
         url: https://www.x.org/releases/individual/lib/libXtst-1.2.5.tar.gz
         sha256: 244ba6e1c5ffa44f1ba251affdfa984d55d99c94bb925a342657e5e7aaf6d39c
 
-
   - name: nlohmann-json
     buildsystem: simple
     build-commands:
@@ -128,11 +128,8 @@ modules:
         url: https://github.com/nlohmann/json/releases/download/v3.7.3/include.zip
         sha256: 87b5884741427220d3a33df1363ae0e8b898099fbc59f1c451113f6732891014
 
-
-
   # 🚀 Modulos del launcher
-  
-  # Extractor del APK 
+
   - name: mcpelauncher-extract
     buildsystem: cmake-ninja
     builddir: true
@@ -145,55 +142,37 @@ modules:
         url: https://github.com/minecraft-linux/mcpelauncher-extract.git
         branch: ng
 
-  # Cliente de Minecraft
   - name: mcpelauncher-client
     buildsystem: cmake
     builddir: true
     make-args: [ -j4 ]
-    sources:      
+    sources:
       - type: git
         url: https://github.com/minecraft-linux/mcpelauncher-manifest.git
         branch: ng
-      
       - type: patch
         path: patches/disable-json-fetch.patch
       - type: patch
-        path: patches/disable-curl-download.patch      
+        path: patches/disable-curl-download.patch
 
     build-commands:
       - git submodule update --init --recursive
       - echo "# disabled in flatpak, using system json.hpp" > ext/json.cmake
-      
       - cmake -B build -S . \
           -DCMAKE_BUILD_TYPE=RelWithDebInfo \
           -DENABLE_DEV_PATHS=OFF \
           -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
-          -DCMAKE_PREFIX_PATH=/app \
-          -DCMAKE_INCLUDE_PATH=/app/include \
-          -DCMAKE_LIBRARY_PATH=/app/lib
-          -DUSE_SYSTEM_CURL=ON
-          -DCURL_INCLUDE_DIR=/app/include
-          -DCURL_LIBRARY=/app/lib/libcurl.so
-          -DCMAKE_C_COMPILER=clang \
-          -DCMAKE_CXX_COMPILER=clang++
-
-      - cmake -B build-clang -S . \
-          -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-          -DENABLE_DEV_PATHS=OFF \
-          -DCMAKE_PREFIX_PATH=/app \
+          -DCMAKE_PREFIX_PATH="/app:/usr/lib/sdk/qt5/lib/cmake:/usr/lib/sdk/qt5/lib/cmake/Qt5" \
           -DCMAKE_INCLUDE_PATH=/app/include \
           -DCMAKE_LIBRARY_PATH=/app/lib \
           -DUSE_SYSTEM_CURL=ON \
+          -DCURL_INCLUDE_DIR=/app/include \
+          -DCURL_LIBRARY=/app/lib/libcurl.so \
           -DCMAKE_C_COMPILER=clang \
           -DCMAKE_CXX_COMPILER=clang++
-      - make -C build-clang -j4 target_clang_component
-      
-
       - make -C build -j4
       - make -C build install
-      - make -C build-clang install
 
-  # Launcher con interfaz gráfica (egui)
   - name: minecraft_egui
     buildsystem: simple
     build-commands:
