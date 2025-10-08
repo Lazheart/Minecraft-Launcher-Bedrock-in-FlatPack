@@ -70,6 +70,24 @@ modules:
         url: https://curl.se/download/curl-8.10.1.tar.gz
         sha256: d15ebab765d793e2e96db090f0e172d127859d78ca6f6391d7eafecfd894bbc0
 
+    buildsystem: autotools
+    config-opts:
+      - --with-openssl=/app
+      - --without-gnutls
+      - --without-nss
+      - --disable-ldap
+      - --disable-ldaps
+      - --enable-ipv6
+    build-options:
+      env:
+        PKG_CONFIG_PATH: "/app/lib/pkgconfig"
+        LDFLAGS: "-L/app/lib"
+        CPPFLAGS: "-I/app/include"
+    sources:
+      - type: archive
+        url: https://curl.se/download/curl-8.10.1.tar.gz
+        sha256: d15ebab765d793e2e96db090f0e172d127859d78ca6f6391d7eafecfd894bbc0
+
 
   # 🔀 Abseil debe ir ANTES de protobuf
   - name: abseil-cpp
@@ -85,9 +103,14 @@ modules:
         sha256: f50e5ac311a81382da7fa75b97310e4b9006474f9560ac46f54a9967f07d4ae3
 
   - name: protobuf
-    buildsystem: cmake
+    buildsystem: cmake   
     builddir: true
+    build-options:
+      env:
+        CXXFLAGS: "-std=c++17"
+        CFLAGS: "-fPIC"
     config-opts:
+      - -DCMAKE_CXX_STANDARD=17
       - -Dprotobuf_BUILD_TESTS=OFF
       - -Dprotobuf_ABSL_PROVIDER=package
       - -Dprotobuf_UTF8_RANGE_PROVIDER=module
