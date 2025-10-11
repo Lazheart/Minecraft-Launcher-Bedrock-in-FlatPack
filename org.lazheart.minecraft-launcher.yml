@@ -191,7 +191,8 @@ modules:
         path: patches/disable-json-fetch.patch
       - type: patch
         path: patches/disable-curl-download.patch
-
+      - type: patch
+        path: patches/remove-nlohmann-link.patch
     build-commands:
       - git submodule update --init --recursive
       - echo "# disabled in flatpak, using system json.hpp" > ext/json.cmake
@@ -209,7 +210,6 @@ modules:
           -DCMAKE_CXX_COMPILER=clang++
       - make -C build -j4
       - make -C build install
-
 
   - name: minecraft_egui
     buildsystem: simple
