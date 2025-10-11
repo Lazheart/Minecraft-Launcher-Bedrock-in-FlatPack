@@ -153,9 +153,8 @@ modules:
   - name: nlohmann-json
     buildsystem: simple
     build-commands:
-      - install -Dm644 json.hpp /app/include/json.hpp
-      - mkdir -p /app/nlohmann
-      - unzip include.zip -d /app/nlohmann
+      - mkdir -p /app/include/nlohmann
+      - install -Dm644 json.hpp /app/include/nlohmann/json.hpp
     sources:
       - type: file
         url: https://github.com/nlohmann/json/releases/download/v3.7.3/json.hpp
