@@ -70,6 +70,24 @@ modules:
         url: https://curl.se/download/curl-8.10.1.tar.gz
         sha256: d15ebab765d793e2e96db090f0e172d127859d78ca6f6391d7eafecfd894bbc0
 
+    buildsystem: autotools
+    config-opts:
+      - --with-openssl=/app
+      - --without-gnutls
+      - --without-nss
+      - --disable-ldap
+      - --disable-ldaps
+      - --enable-ipv6
+    build-options:
+      env:
+        PKG_CONFIG_PATH: "/app/lib/pkgconfig"
+        LDFLAGS: "-L/app/lib"
+        CPPFLAGS: "-I/app/include"
+    sources:
+      - type: archive
+        url: https://curl.se/download/curl-8.10.1.tar.gz
+        sha256: d15ebab765d793e2e96db090f0e172d127859d78ca6f6391d7eafecfd894bbc0
+
 
   # 🔀 Abseil debe ir ANTES de protobuf
   - name: abseil-cpp
@@ -85,9 +103,14 @@ modules:
         sha256: f50e5ac311a81382da7fa75b97310e4b9006474f9560ac46f54a9967f07d4ae3
 
   - name: protobuf
-    buildsystem: cmake
+    buildsystem: cmake   
     builddir: true
+    build-options:
+      env:
+        CXXFLAGS: "-std=c++17"
+        CFLAGS: "-fPIC"
     config-opts:
+      - -DCMAKE_CXX_STANDARD=17
       - -Dprotobuf_BUILD_TESTS=OFF
       - -Dprotobuf_ABSL_PROVIDER=package
       - -Dprotobuf_UTF8_RANGE_PROVIDER=module
@@ -130,16 +153,12 @@ modules:
   - name: nlohmann-json
     buildsystem: simple
     build-commands:
-      - install -Dm644 json.hpp /app/include/json.hpp
-      - mkdir -p /app/nlohmann
-      - unzip include.zip -d /app/nlohmann
+      - mkdir -p /app/include/nlohmann
+      - install -Dm644 json.hpp /app/include/nlohmann/json.hpp
     sources:
       - type: file
         url: https://github.com/nlohmann/json/releases/download/v3.7.3/json.hpp
         sha256: 3b5d2b8f8282b80557091514d8ab97e27f9574336c804ee666fda673a9b59926
-      - type: file
-        url: https://github.com/nlohmann/json/releases/download/v3.7.3/include.zip
-        sha256: 87b5884741427220d3a33df1363ae0e8b898099fbc59f1c451113f6732891014
 
   # 🚀 Modulos del launcher
 
@@ -172,7 +191,8 @@ modules:
         path: patches/disable-json-fetch.patch
       - type: patch
         path: patches/disable-curl-download.patch
-
+      - type: patch
+        path: patches/remove-nlohmann-link.patch
     build-commands:
       - git submodule update --init --recursive
       - echo "# disabled in flatpak, using system json.hpp" > ext/json.cmake
@@ -190,7 +210,6 @@ modules:
           -DCMAKE_CXX_COMPILER=clang++
       - make -C build -j4
       - make -C build install
-
 
   - name: minecraft_egui
     buildsystem: simple
