@@ -159,9 +159,6 @@ modules:
       - type: file
         url: https://github.com/nlohmann/json/releases/download/v3.7.3/json.hpp
         sha256: 3b5d2b8f8282b80557091514d8ab97e27f9574336c804ee666fda673a9b59926
-      - type: file
-        url: https://github.com/nlohmann/json/releases/download/v3.7.3/include.zip
-        sha256: 87b5884741427220d3a33df1363ae0e8b898099fbc59f1c451113f6732891014
 
   # 🚀 Modulos del launcher
 
