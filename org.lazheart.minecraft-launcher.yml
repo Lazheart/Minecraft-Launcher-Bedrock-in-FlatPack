@@ -212,7 +212,6 @@ modules:
           -DCMAKE_C_COMPILER=clang \
           -DCMAKE_CXX_COMPILER=clang++
       - make -C build -j4
-      - make -C build install
       - DESTDIR=/app make -C build install
 
   - name: minecraft_egui
