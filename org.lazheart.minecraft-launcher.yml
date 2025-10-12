@@ -193,6 +193,8 @@ modules:
         path: patches/disable-curl-download.patch
       - type: patch
         path: patches/disable-nlohmann-link-simpleipc.patch
+      - type: patch
+        path: patches/remove-nlohmann-link-telemetry.patch
     build-commands:
       - git submodule update --init --recursive
       - echo "# disabled in flatpak, using system json.hpp" > ext/json.cmake
