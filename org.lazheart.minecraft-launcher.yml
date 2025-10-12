@@ -198,10 +198,11 @@ modules:
     build-commands:
       - git submodule update --init --recursive
       - echo "# disabled in flatpak, using system json.hpp" > ext/json.cmake
-      - cmake -B build -S . \
+      - cmake -B build -S /run/build/mcpelauncher-client
           -DCMAKE_BUILD_TYPE=RelWithDebInfo \
           -DENABLE_DEV_PATHS=OFF \
           -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+          -DCMAKE_INSTALL_PREFIX=/app \
           -DCMAKE_PREFIX_PATH="/app:/usr/lib/sdk/qt5/lib/cmake:/usr/lib/sdk/qt5/lib/cmake/Qt5" \
           -DCMAKE_INCLUDE_PATH=/app/include \
           -DCMAKE_LIBRARY_PATH=/app/lib \
@@ -210,6 +211,7 @@ modules:
           -DCURL_LIBRARY=/app/lib/libcurl.so \
           -DCMAKE_C_COMPILER=clang \
           -DCMAKE_CXX_COMPILER=clang++
+          - DESTDIR=/app make -C build install
       - make -C build -j4
       - make -C build install
 
