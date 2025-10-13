@@ -4,6 +4,7 @@ runtime-version: "5.15-22.08"
 sdk: org.kde.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.llvm15
+  - org.freedesktop.Sdk.Extension.rust-stable
 command: wrapper.sh
 base: io.qt.qtwebengine.BaseApp
 base-version: "5.15-22.08"
@@ -87,7 +88,6 @@ modules:
       - type: archive
         url: https://curl.se/download/curl-8.10.1.tar.gz
         sha256: d15ebab765d793e2e96db090f0e172d127859d78ca6f6391d7eafecfd894bbc0
-
 
   # 🔀 Abseil debe ir ANTES de protobuf
   - name: abseil-cpp
@@ -217,12 +217,18 @@ modules:
   - name: minecraft_egui
     buildsystem: simple
     build-commands:
+      - cargo build --release --target-dir=target
       - install -Dm755 bin/minecraft_egui /app/bin/minecraft_egui
       - install -Dm755 src/wrapper.sh /app/bin/wrapper.sh
       - install -Dm644 src/org.lazheart.minecraft_launcher.desktop /app/share/applications/org.lazheart.minecraft_launcher.desktop
       - install -Dm644 src/org.lazheart.minecraft-launcher.appdata.xml /app/share/metainfo/org.lazheart.minecraft-launcher.appdata.xml
       - install -Dm644 assets/logo.png /app/share/icons/hicolor/256x256/apps/org.lazheart.minecraft_launcher.png
       - install -Dm644 assets/logo.svg /app/share/icons/hicolor/scalable/apps/org.lazheart.minecraft_launcher.svg
+    build-options:
+      env:
+        CARGO_HOME: /run/build/minecraft_egui/cargo
+        RUSTFLAGS: "-C target-cpu=native"
     sources:
-      - type: dir
-        path: .
+      - type: git
+        url: https://github.com/Lazheart/UI-Minecraft-Launcher-Flatpack
+        branch: main
