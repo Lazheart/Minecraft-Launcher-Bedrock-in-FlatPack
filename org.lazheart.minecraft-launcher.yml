@@ -217,18 +217,28 @@ modules:
   - name: minecraft_egui
     buildsystem: simple
     build-commands:
+      # Compila el binario con cargo (usa el target dir local)
       - cargo build --release --target-dir=target
-      - install -Dm755 bin/minecraft_egui /app/bin/minecraft_egui
+
+      # Instala el binario generado (ubicación real en target/release)
+      - install -Dm755 target/release/minecraft_egui /app/bin/minecraft_egui
+
+      # Instala el wrapper, desktop, appdata y los íconos
       - install -Dm755 src/wrapper.sh /app/bin/wrapper.sh
       - install -Dm644 src/org.lazheart.minecraft_launcher.desktop /app/share/applications/org.lazheart.minecraft_launcher.desktop
       - install -Dm644 src/org.lazheart.minecraft-launcher.appdata.xml /app/share/metainfo/org.lazheart.minecraft-launcher.appdata.xml
       - install -Dm644 assets/logo.png /app/share/icons/hicolor/256x256/apps/org.lazheart.minecraft_launcher.png
       - install -Dm644 assets/logo.svg /app/share/icons/hicolor/scalable/apps/org.lazheart.minecraft_launcher.svg
+
     build-options:
       env:
-        CARGO_HOME: /run/build/minecraft_egui/cargo
+        CARGO_HOME: /run/build/minecraft_egui/cargo_home
+        RUSTUP_HOME: /run/build/minecraft_egui/rustup_home
+        PATH: /usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/llvm15/bin:/usr/bin:/app/bin
         RUSTFLAGS: "-C target-cpu=native"
+
     sources:
       - type: git
         url: https://github.com/Lazheart/UI-Minecraft-Launcher-Flatpack
         branch: main
+
