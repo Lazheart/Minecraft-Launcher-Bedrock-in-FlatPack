@@ -6,7 +6,7 @@
   <description>
     <p>
       Lanzador de Minecraft Bedrock Edition con soporte para extraer APKs,
-      manejar versiones y ejecutar el cliente en Bazzaite Linux.
+      manejar versiones y ejecutar el cliente en Linux.
     </p>
   </description>
   <launchable type="desktop-id">org.lazheart.minecraft-launcher.desktop</launchable>
