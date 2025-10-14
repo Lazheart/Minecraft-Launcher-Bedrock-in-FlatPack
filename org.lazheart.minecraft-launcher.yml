@@ -217,13 +217,17 @@ modules:
   - name: minecraft_egui
     buildsystem: simple
     build-commands:
-      # Compila usando solo dependencias locales (sin internet)
+      # Asegura que Cargo use los vendorizados
+      - mkdir -p .cargo
+      - echo -e "[source.crates-io]\nreplace-with = 'vendored-sources'\n\n[source.vendored-sources]\ndirectory = 'vendor'" > .cargo/config.toml
+
+      # Compila el binario con cargo en modo offline
       - cargo build --release --offline --frozen --target-dir=target
 
-      # Instala el binario resultante
+      # Instala el binario compilado
       - install -Dm755 target/release/minecraft_egui /app/bin/minecraft_egui
 
-      # Instala el wrapper, desktop, appdata y los íconos
+      # Instala el wrapper, desktop, metainfo e íconos
       - install -Dm755 src/wrapper.sh /app/bin/wrapper.sh
       - install -Dm644 src/org.lazheart.minecraft_launcher.desktop /app/share/applications/org.lazheart.minecraft_launcher.desktop
       - install -Dm644 src/org.lazheart.minecraft-launcher.appdata.xml /app/share/metainfo/org.lazheart.minecraft-launcher.appdata.xml
@@ -241,3 +245,4 @@ modules:
       - type: git
         url: https://github.com/Lazheart/UI-Minecraft-Launcher-Flatpack
         branch: main
+        disable-submodules: true
