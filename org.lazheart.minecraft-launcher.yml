@@ -159,7 +159,7 @@ modules:
         url: https://github.com/nlohmann/json/releases/download/v3.7.3/json.hpp
         sha256: 3b5d2b8f8282b80557091514d8ab97e27f9574336c804ee666fda673a9b59926
 
- #  Librerias Python para la UI
+  #  Librerias Python para la UI
   - name: python3-customtkinter
     buildsystem: simple
     build-commands:
@@ -229,7 +229,6 @@ modules:
           -DCMAKE_CXX_COMPILER=clang++
       - make -C build -j4
       - DESTDIR=/app make -C build install
- 
  
   - name: minecraft_launcher_ui
     buildsystem: simple
