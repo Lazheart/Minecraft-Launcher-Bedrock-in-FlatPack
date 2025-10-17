@@ -269,7 +269,7 @@ modules:
       - install -Dm644 assets/logo.png /app/share/icons/hicolor/256x256/apps/org.lazheart.minecraft-launcher.png
       - install -Dm644 assets/logo.svg /app/share/icons/hicolor/scalable/apps/org.lazheart.minecraft-launcher.svg
       - install -Dm644 src/org.lazheart.minecraft-launcher.desktop /app/share/applications/org.lazheart.minecraft-launcher.desktop
-      - install -Dm644 src/org.lazheart.minecraft-launcher.appdata.xml /app/share/metainfo/org.lazheart.minecraft-launcher.appdata.xml
+      - install -Dm644 src/org.lazheart.minecraft-launcher.metainfo.xml /app/share/metainfo/org.lazheart.minecraft-launcher.metainfo.xml
     sources:
       - type: git
         url: https://github.com/Lazheart/UI-Minecraft-Launcher-Flatpack
