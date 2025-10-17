@@ -160,6 +160,35 @@ modules:
         sha256: 3b5d2b8f8282b80557091514d8ab97e27f9574336c804ee666fda673a9b59926
 
   #  Librerias Python para la UI
+  - name: python3-tkinter
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=${FLATPAK_DEST} .
+    sources:
+      - type: git
+        url: https://github.com/iwalton3/tkinter-standalone
+        commit: ba946536054f9d27a08aafde21aa18330ce05729
+    modules:
+      - name: tcl
+        buildsystem: autotools
+        subdir: unix
+        sources:
+          - type: archive
+            url: https://sourceforge.net/projects/tcl/files/Tcl/8.6.12/tcl8.6.12-src.tar.gz
+            sha256: 26c995dd0f167e48b11961d891ee555f680c175f7173ff8cb829f4ebcde4c1a6
+        post-install:
+          - chmod 755 /app/lib/libtcl*.so
+      - name: tk
+        buildsystem: autotools
+        subdir: unix
+        sources:
+          - type: archive
+            url: https://sourceforge.net/projects/tcl/files/Tcl/8.6.12/tk8.6.12-src.tar.gz
+            sha256: 12395c1f3fcb6bed2938689f797ea3cdf41ed5cb6c4766eec8ac949560310630
+        post-install:
+          - chmod 755 /app/lib/libtk*.so
+
+
   - name: python3-customtkinter
     buildsystem: simple
     build-commands:
@@ -174,7 +203,6 @@ modules:
       - type: file
         url: https://files.pythonhosted.org/packages/20/12/38679034af332785aac8774540895e234f4d07f7545804097de4b666afd8/packaging-25.0-py3-none-any.whl
         sha256: 29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484
-
 
   # 🚀 Modulos del launcher
 
