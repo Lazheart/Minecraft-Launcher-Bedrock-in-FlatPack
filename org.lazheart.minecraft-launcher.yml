@@ -289,6 +289,10 @@ modules:
   - name: minecraft_launcher_ui
     buildsystem: simple
     build-commands:
+      # Instalar el módulo UI completo
+      - install -d /app/ui
+      - cp -r ui/* /app/ui/
+
       # Instalar el lanzador Python y assets
       - install -Dm755 src/main.py /app/bin/minecraft-launcher-ui
       - install -Dm755 src/wrapper.sh /app/bin/wrapper.sh
