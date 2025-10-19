@@ -325,4 +325,4 @@ modules:
     sources:
       - type: git
         url: https://github.com/Lazheart/UI-Minecraft-Launcher-Flatpack
-        branch: test
+        branch: main
