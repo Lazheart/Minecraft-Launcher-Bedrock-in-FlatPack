@@ -43,13 +43,23 @@ modules:
   - name: openssl
     buildsystem: simple
     build-commands:
-      - ./config --prefix=/app --openssldir=/app/ssl
+      - ./config --prefix=/app --openssldir=/app/ssl --libdir=lib
       - make -j4
       - make install_sw
+      - mkdir -p /app/lib/pkgconfig
+      - echo "prefix=/app" > /app/lib/pkgconfig/openssl.pc
+      - echo "exec_prefix=\${prefix}" >> /app/lib/pkgconfig/openssl.pc
+      - echo "libdir=\${exec_prefix}/lib" >> /app/lib/pkgconfig/openssl.pc
+      - echo "includedir=\${prefix}/include" >> /app/lib/pkgconfig/openssl.pc
+      - echo "Name: OpenSSL" >> /app/lib/pkgconfig/openssl.pc
+      - echo "Description: OpenSSL cryptography and SSL/TLS toolkit" >> /app/lib/pkgconfig/openssl.pc
+      - echo "Version: 3.2.0" >> /app/lib/pkgconfig/openssl.pc
+      - echo "Libs: -L\${libdir} -lssl -lcrypto" >> /app/lib/pkgconfig/openssl.pc
+      - echo "Cflags: -I\${includedir}" >> /app/lib/pkgconfig/openssl.pc
     sources:
       - type: archive
-        url: https://www.openssl.org/source/openssl-3.3.2.tar.gz
-        sha256: 2e8a40b01979afe8be0bbfb3de5dc1c6709fedb46d6c89c10da114ab5fc3d281
+        url: https://www.openssl.org/source/openssl-3.2.0.tar.gz
+        sha256: 14c826f07c7e433706fb5c69fa9e25dab95684844b4c962a2cf1bf183eb4690e
 
   - name: curl
     buildsystem: autotools
@@ -63,30 +73,18 @@ modules:
     build-options:
       env:
         PKG_CONFIG_PATH: "/app/lib/pkgconfig"
-        LDFLAGS: "-L/app/lib"
+        LDFLAGS: "-L/app/lib -Wl,-rpath,/app/lib"  # 👈 fuerza a usar /app/lib en tiempo de ejecución
         CPPFLAGS: "-I/app/include"
+        LIBS: "-lssl -lcrypto"
+        LD_LIBRARY_PATH: "/app/lib"                # 👈 garantiza detección correcta durante build
+        OPENSSL_ROOT_DIR: "/app"
+        OPENSSL_LIB_DIR: "/app/lib"
+        OPENSSL_INCLUDE_DIR: "/app/include"
     sources:
       - type: archive
         url: https://curl.se/download/curl-8.10.1.tar.gz
         sha256: d15ebab765d793e2e96db090f0e172d127859d78ca6f6391d7eafecfd894bbc0
 
-    buildsystem: autotools
-    config-opts:
-      - --with-openssl=/app
-      - --without-gnutls
-      - --without-nss
-      - --disable-ldap
-      - --disable-ldaps
-      - --enable-ipv6
-    build-options:
-      env:
-        PKG_CONFIG_PATH: "/app/lib/pkgconfig"
-        LDFLAGS: "-L/app/lib"
-        CPPFLAGS: "-I/app/include"
-    sources:
-      - type: archive
-        url: https://curl.se/download/curl-8.10.1.tar.gz
-        sha256: d15ebab765d793e2e96db090f0e172d127859d78ca6f6391d7eafecfd894bbc0
 
   # 🔀 Abseil debe ir ANTES de protobuf
   - name: abseil-cpp
