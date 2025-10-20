@@ -16,31 +16,32 @@ finish-args:
   - --socket=pulseaudio
   - --device=all
   - --filesystem=home
-  - --talk-name=org.freedesktop.Notifications
   - --talk-name=org.a11y.Bus
-  - --socket=session-bus
+  - --env=GTK_IM_MODULE=ibus
+  - --env=QT_IM_MODULE=ibus
+  - --env=XMODIFIERS=@im=ibus
+  - --filesystem=/usr/share/X11/xkb:ro    # <-- montas datos xkb del host (opcional)
+  - --env=XKB_CONFIG_ROOT=/usr/share/X11/xkb # <-- para que libxkbcommon encuentre datos (si usas host xkb)
 
-  # 🧩 Evitar errores de GTK / Qt y asegurar compatibilidad gráfica
-  - --env=GTK_MODULES=                  # Evita warnings de canberra-gtk-module ausente
-  - --env=QT_QPA_PLATFORM=wayland;xcb   # Usa Wayland si está disponible, X11 si no
+ # 🧩 Evitar errores visuales GTK/Qt
+  - --env=GTK_PATH=/app/lib/gtk-3.0/modules
+  - --env=QT_STYLE_OVERRIDE=Fusion
   - --env=QTWEBENGINE_CHROMIUM_FLAGS=--no-sandbox
-  - --env=QT_SCALE_FACTOR=1             # Previene escalado extraño en algunos entornos
+  - --env=QT_QPA_PLATFORMTHEME=qt5ct
 
-  
-  # 🔧 Solucionar problemas de accesibilidad y teclado correctamente
-  - --filesystem=xdg-run/at-spi        # Permite acceso al directorio de accesibilidad
-  - --env=SDL_VIDEO_X11_WMCLASS=minecraft-launcher  # Identifica la ventana correctamente
-  # AT_SPI_BUS_ADDRESS se configura automáticamente por el sistema
-  
-  # ⌨️ Configuración de teclado para la ventana del juego
-  - --env=LC_ALL=C.UTF-8               # Configuración de locale estándar
-  - --env=LANG=C.UTF-8                 # Idioma por defecto
-  - --env=KEYBOARD_LAYOUT=us           # Layout de teclado por defecto
-  
-  # 🎮 Variables específicas para el juego (ventana secundaria)
-  - --env=SDL_VIDEO_X11_WMCLASS=Minecraft  # Identifica la ventana del juego
-  - --env=SDL_VIDEO_X11_WMNAME=Minecraft   # Nombre de la ventana del juego
-  - --env=SDL_VIDEO_WAYLAND_WMCLASS=Minecraft  # Para Wayland también
+  # ⚙️ Librerías necesarias para input y teclado
+  - --env=LD_PRELOAD=/app/lib/libevdev.so.2:/app/lib/libxkbcommon.so.0
+
+  # 🧭 Rutas del entorno
+  - --env=PATH=/app/bin:/usr/bin:/usr/libexec:/usr/lib:/bin
+  - --env=LD_LIBRARY_PATH=/app/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+
+  # 🪟 Ventanas / SDL
+  - --env=SDL_VIDEO_X11_WMCLASS=minecraft-launcher
+  - --env=SDL_VIDEO_X11_WMCLASS=mcpelauncher-client
+  - --env=SDL_VIDEO_X11_WMNAME=Minecraft
+  - --env=SDL_VIDEO_WAYLAND_WMCLASS=mcpelauncher-client
+  - --env=SDL_VIDEO_WAYLAND_WMNAME=Minecraft
 
 build-options:
   cflags: -O2
@@ -54,6 +55,16 @@ build-options:
     CC: "clang"
     CXX: "clang++"
 modules:
+  # Teclado Config: usar autotools para instalar correctamente en /app/share/X11/xkb
+  - name: xkb-data
+    buildsystem: meson
+    config-opts:
+      - --prefix=/app
+    sources:
+      - type: archive
+        url: https://xorg.freedesktop.org/releases/individual/data/xkeyboard-config/xkeyboard-config-2.41.tar.xz
+        sha256: f02cd6b957295e0d50236a3db15825256c92f67ef1f73bf1c77a4b179edf728f
+
   # 🔧 Librerías base requeridas
   - name: libzip
     buildsystem: cmake
@@ -110,6 +121,7 @@ modules:
         sha256: d15ebab765d793e2e96db090f0e172d127859d78ca6f6391d7eafecfd894bbc0
 
   # 🔀 Abseil debe ir ANTES de protobuf
+  
   - name: abseil-cpp
     buildsystem: cmake
     builddir: true
@@ -167,7 +179,7 @@ modules:
     buildsystem: autotools
     sources:
       - type: archive
-        url: https://www.x.org/releases/individual/lib/libXtst-1.2.5.tar.gz
+        url: https://x.org/releases/individual/lib/libXtst-1.2.5.tar.gz
         sha256: 244ba6e1c5ffa44f1ba251affdfa984d55d99c94bb925a342657e5e7aaf6d39c
 
   - name: nlohmann-json
@@ -179,6 +191,26 @@ modules:
       - type: file
         url: https://github.com/nlohmann/json/releases/download/v3.7.3/json.hpp
         sha256: 3b5d2b8f8282b80557091514d8ab97e27f9574336c804ee666fda673a9b59926
+
+  - name: libcanberra
+    buildsystem: autotools
+    config-opts:
+      - --disable-static
+      - --disable-gtk-doc
+    sources:
+      - type: archive
+        url: https://0pointer.de/lennart/projects/libcanberra/libcanberra-0.30.tar.xz
+        sha256: c2b671e67e0c288a69fc33dc1b6f1b534d07882c2aceed37004bf48c601afa72
+  
+  - name: libxkbcommon
+    buildsystem: meson
+    config-opts:
+      - -Denable-docs=false
+      - -Denable-wayland=false
+    sources:
+      - type: archive
+        url: https://xkbcommon.org/download/libxkbcommon-1.7.0.tar.xz
+        sha256: 65782f0a10a4b455af9c6baab7040e2f537520caa2ec2092805cdfd36863b247
 
   #  Librerias Python para la UI
   - name: python3-tkinter
@@ -208,7 +240,6 @@ modules:
             sha256: 12395c1f3fcb6bed2938689f797ea3cdf41ed5cb6c4766eec8ac949560310630
         post-install:
           - chmod 755 /app/lib/libtk*.so
-
 
   - name: python3-customtkinter
     buildsystem: simple
@@ -305,7 +336,7 @@ modules:
           -DCMAKE_CXX_COMPILER=clang++
       - make -C build -j4
       - DESTDIR=/app make -C build install
- 
+  
   - name: minecraft_launcher_ui
     buildsystem: simple
     build-commands:
