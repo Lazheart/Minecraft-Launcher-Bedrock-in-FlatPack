@@ -15,10 +15,14 @@ finish-args:
   - --socket=wayland
   - --socket=pulseaudio
   - --device=all
+  - --device=dri
   - --filesystem=home
   - --talk-name=org.freedesktop.Notifications
   - --talk-name=org.a11y.Bus
   - --socket=session-bus
+  - --filesystem=/run/host/font-dirs:ro
+  - --filesystem=/usr/share/X11/xkb:ro
+  - --env=XKB_CONFIG_ROOT=/usr/share/X11/xkb
 
   # 🧩 Evitar errores de GTK / Qt y asegurar compatibilidad gráfica
   - --env=GTK_MODULES=                  # Evita warnings de canberra-gtk-module ausente
@@ -180,6 +184,13 @@ modules:
         url: https://github.com/nlohmann/json/releases/download/v3.7.3/json.hpp
         sha256: 3b5d2b8f8282b80557091514d8ab97e27f9574336c804ee666fda673a9b59926
 
+  - name: libx11
+    buildsystem: autotools
+    sources:
+      - type: archive
+        url: https://www.x.org/releases/individual/lib/libX11-1.7.3.tar.gz
+        sha256: 029acf61e7e760a3150716b145a58ce5052ee953e8cccc8441d4f550c420debb
+  
   #  Librerias Python para la UI
   - name: python3-tkinter
     buildsystem: simple
@@ -208,7 +219,6 @@ modules:
             sha256: 12395c1f3fcb6bed2938689f797ea3cdf41ed5cb6c4766eec8ac949560310630
         post-install:
           - chmod 755 /app/lib/libtk*.so
-
 
   - name: python3-customtkinter
     buildsystem: simple
@@ -287,6 +297,8 @@ modules:
         path: patches/disable-nlohmann-link-simpleipc.patch
       - type: patch
         path: patches/remove-nlohmann-link-telemetry.patch
+      - type: patch
+        path: patches/ignoreegluterror.patch
     build-commands:
       - git submodule update --init --recursive
       - echo "# disabled in flatpak, using system json.hpp" > ext/json.cmake
