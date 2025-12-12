@@ -57,6 +57,7 @@ build-options:
     PKG_CONFIG_PATH: "/app/lib/pkgconfig:/usr/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig"
     CC: "clang"
     CXX: "clang++"
+
 modules:
   # 🔧 Librerías base requeridas
   - name: libzip
@@ -113,7 +114,6 @@ modules:
         url: https://curl.se/download/curl-8.10.1.tar.gz
         sha256: d15ebab765d793e2e96db090f0e172d127859d78ca6f6391d7eafecfd894bbc0
 
-  # 🔀 Abseil debe ir ANTES de protobuf
   - name: abseil-cpp
     buildsystem: cmake
     builddir: true
