@@ -21,9 +21,6 @@ finish-args:
   - --talk-name=org.freedesktop.Notifications
   - --talk-name=org.a11y.Bus
   - --socket=session-bus
-  - --filesystem=/run/host/font-dirs:ro
-  - --filesystem=/usr/share/X11/xkb:ro
-  - --env=XKB_CONFIG_ROOT=/usr/share/X11/xkb
 
   # 🧩 Evitar errores de GTK / Qt y asegurar compatibilidad gráfica
   - --env=GTK_MODULES=                  # Evita warnings de canberra-gtk-module ausente
@@ -242,7 +239,7 @@ modules:
       - DESTDIR=/app make -C build install
  
   - name: mcpelauncher-gui
-    buildsystem: cmake-ninja
+    buildsystem: cmake
     builddir: true
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
