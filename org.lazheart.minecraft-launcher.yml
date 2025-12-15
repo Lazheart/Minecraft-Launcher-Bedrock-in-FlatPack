@@ -12,6 +12,7 @@ finish-args:
   - --share=network
   - --share=ipc
   - --socket=x11
+  - --filesystem=xdg-documents
   - --socket=wayland
   - --socket=pulseaudio
   - --device=all
@@ -241,23 +242,24 @@ modules:
       - DESTDIR=/app make -C build install
  
   - name: mcpelauncher-gui
-    buildsystem: cmake
+    buildsystem: cmake-ninja
     builddir: true
-    make-args: [ -j4 ]
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
       - -DCMAKE_INSTALL_PREFIX=/app
+      - -DCMAKE_PREFIX_PATH=/usr/lib/sdk/qt5/lib/cmake
     build-options:
       env:
         PATH: /usr/lib/sdk/qt5/bin:/app/bin:/usr/bin
-        CMAKE_PREFIX_PATH: /usr/lib/sdk/qt5/lib/cmake
       prepend-pkg-config-path: /usr/lib/sdk/qt5/lib/pkgconfig
     sources:
       - type: git
         url: https://github.com/Lazheart/UI-Minecraft-Launcher-Flatpack.git
         branch: c++
     post-install:
-      - mkdir -p /app/share/applications /app/share/metainfo /app/share/icons/hicolor/scalable/apps
-      - '[ -f flatpak/org.lazheart.minecraft-launcher.desktop ] && install -Dm644 flatpak/org.lazheart.minecraft-launcher.desktop /app/share/applications/org.lazheart.minecraft-launcher.desktop || true'
-      - '[ -f flatpak/org.lazheart.minecraft-launcher.metainfo.xml ] && install -Dm644 flatpak/org.lazheart.minecraft-launcher.metainfo.xml /app/share/metainfo/org.lazheart.minecraft-launcher.metainfo.xml || true'
-      - '[ -f assets/icons/logo.svg ] && install -Dm644 assets/icons/logo.svg /app/share/icons/hicolor/scalable/apps/org.lazheart.minecraft-launcher.svg || true'
+      - install -Dm644 ../flatpak/org.lazheart.minecraft-launcher.desktop \
+        /app/share/applications/org.lazheart.minecraft-launcher.desktop
+      - install -Dm644 ../flatpak/org.lazheart.minecraft-launcher.metainfo.xml \
+        /app/share/metainfo/org.lazheart.minecraft-launcher.metainfo.xml
+      - install -Dm644 ../assets/icons/logo.svg \
+        /app/share/icons/hicolor/scalable/apps/org.lazheart.minecraft-launcher.svg

@@ -1,5 +1,6 @@
 # Directorios de build de flatpak-builder
 /build-dir/
+build/
 /app/
 /var/
 /files/
