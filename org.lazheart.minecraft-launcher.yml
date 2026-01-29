@@ -23,10 +23,10 @@ finish-args:
   - --socket=session-bus
 
   # 🧩 Evitar errores de GTK / Qt y asegurar compatibilidad gráfica
-  - --env=GTK_MODULES=                  # Evita warnings de canberra-gtk-module ausente
-  - --env=QT_QPA_PLATFORM=wayland;xcb   # Usa Wayland si está disponible, X11 si no
+  # - --env=GTK_MODULES=                  # Evita warnings de canberra-gtk-module ausente
+  # - --env=QT_QPA_PLATFORM=wayland;xcb   # Usa Wayland si está disponible, X11 si no
   - --env=QTWEBENGINE_CHROMIUM_FLAGS=--no-sandbox
-  - --env=QT_SCALE_FACTOR=1             # Previene escalado extraño en algunos entornos
+  # - --env=QT_SCALE_FACTOR=1             # Previene escalado extraño en algunos entornos
 
   
   # 🔧 Solucionar problemas de accesibilidad y teclado correctamente
@@ -34,15 +34,15 @@ finish-args:
   - --env=SDL_VIDEO_X11_WMCLASS=minecraft-launcher  # Identifica la ventana correctamente
   # AT_SPI_BUS_ADDRESS se configura automáticamente por el sistema
   
-  # ⌨️ Configuración de teclado para la ventana del juego
+  #  Configuración de teclado para la ventana del juego
   - --env=LC_ALL=C.UTF-8               # Configuración de locale estándar
   - --env=LANG=C.UTF-8                 # Idioma por defecto
   - --env=KEYBOARD_LAYOUT=us           # Layout de teclado por defecto
   
-  # 🎮 Variables específicas para el juego (ventana secundaria)
-  - --env=SDL_VIDEO_X11_WMCLASS=Minecraft  # Identifica la ventana del juego
-  - --env=SDL_VIDEO_X11_WMNAME=Minecraft   # Nombre de la ventana del juego
-  - --env=SDL_VIDEO_WAYLAND_WMCLASS=Minecraft  # Para Wayland también
+  # #  Variables específicas para el juego (ventana secundaria)
+  # - --env=SDL_VIDEO_X11_WMCLASS=Minecraft  # Identifica la ventana del juego
+  # - --env=SDL_VIDEO_X11_WMNAME=Minecraft   # Nombre de la ventana del juego
+  # - --env=SDL_VIDEO_WAYLAND_WMCLASS=Minecraft  # Para Wayland también
 
 build-options:
   cflags: -O2
@@ -111,7 +111,7 @@ modules:
         url: https://curl.se/download/curl-8.10.1.tar.gz
         sha256: d15ebab765d793e2e96db090f0e172d127859d78ca6f6391d7eafecfd894bbc0
 
-  #  Abseil debe ir ANTES de protobuf
+  
   - name: abseil-cpp
     buildsystem: cmake
     builddir: true
@@ -147,7 +147,6 @@ modules:
         url: https://github.com/protocolbuffers/protobuf/archive/refs/tags/v28.2.tar.gz
         sha256: b2340aa47faf7ef10a0328190319d3f3bee1b24f426d4ce8f4253b6f27ce16db
 
-  # Dependencias de sistema usadas por el cliente de Minecraft
   - name: libevdev
     buildsystem: meson
     builddir: true
@@ -238,7 +237,7 @@ modules:
       - make -C build -j4
       - DESTDIR=/app make -C build install
  
-  - name: mcpelauncher-gui
+  - name: mcpelauncher-ui
     buildsystem: cmake
     builddir: true
     config-opts:
@@ -254,9 +253,22 @@ modules:
         url: https://github.com/Lazheart/UI-Minecraft-Launcher-Flatpack.git
         branch: c++
     post-install:
+      # Instala el lanzador (.desktop) en la ruta estándar
       - install -Dm644 ../flatpak/org.lazheart.minecraft-launcher.desktop \
         /app/share/applications/org.lazheart.minecraft-launcher.desktop
+
+      # Instala el metainfo (AppStream) en la ruta estándar
       - install -Dm644 ../flatpak/org.lazheart.minecraft-launcher.metainfo.xml \
         /app/share/metainfo/org.lazheart.minecraft-launcher.metainfo.xml
+
+      # Instala el icono principal con el mismo nombre que el ID
       - install -Dm644 ../assets/icons/logo.svg \
         /app/share/icons/hicolor/scalable/apps/org.lazheart.minecraft-launcher.svg
+
+      # Instala las capturas de pantalla para que se puedan usar en el metainfo
+      - install -Dm644 ../flatpak/screenshoots/prueba1.png \
+        /app/share/metainfo/org.lazheart.minecraft-launcher/prueba1.png
+      - install -Dm644 ../flatpak/screenshoots/prueba2.png \
+        /app/share/metainfo/org.lazheart.minecraft-launcher/prueba2.png
+      - install -Dm644 ../flatpak/screenshoots/prueba3.png \
+        /app/share/metainfo/org.lazheart.minecraft-launcher/prueba3.png
