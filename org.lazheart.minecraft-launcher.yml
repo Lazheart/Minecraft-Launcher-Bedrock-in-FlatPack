@@ -55,6 +55,7 @@ build-options:
     PKG_CONFIG_PATH: "/app/lib/pkgconfig:/usr/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig"
     CC: "clang"
     CXX: "clang++"
+
 modules:
   #  Librerías base requeridas
   - name: libzip
