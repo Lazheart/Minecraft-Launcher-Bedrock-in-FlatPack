@@ -252,7 +252,7 @@ modules:
     sources:
       - type: git
         url: https://github.com/Lazheart/UI-Minecraft-Launcher-Flatpack.git
-        branch: c++
+        branch: main
     post-install:
       # Instala el lanzador (.desktop) en la ruta estándar
       - install -Dm644 ../flatpak/org.lazheart.minecraft-launcher.desktop \
