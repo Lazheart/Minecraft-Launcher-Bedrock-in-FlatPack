@@ -267,9 +267,9 @@ modules:
         /app/share/icons/hicolor/scalable/apps/org.lazheart.minecraft-launcher.svg
 
       # Instala las capturas de pantalla para que se puedan usar en el metainfo
-      - install -Dm644 ../flatpak/screenshoots/prueba1.png \
-        /app/share/metainfo/org.lazheart.minecraft-launcher/prueba1.png
-      - install -Dm644 ../flatpak/screenshoots/prueba2.png \
-        /app/share/metainfo/org.lazheart.minecraft-launcher/prueba2.png
-      - install -Dm644 ../flatpak/screenshoots/prueba3.png \
-        /app/share/metainfo/org.lazheart.minecraft-launcher/prueba3.png
+      - install -Dm644 ../flatpak/screenshoots/pruebas1.png \
+        /app/share/metainfo/org.lazheart.minecraft-launcher/pruebas1.png
+      - install -Dm644 ../flatpak/screenshoots/pruebas2.png \
+        /app/share/metainfo/org.lazheart.minecraft-launcher/pruebas2.png
+      - install -Dm644 ../flatpak/screenshoots/pruebas3.png \
+        /app/share/metainfo/org.lazheart.minecraft-launcher/pruebas3.png
